@@ -18,20 +18,14 @@ system2(command = "makeblastdb",
 #script aller Proteine einer Klasse
 #"6 qseqid sseqid pident qcovs qlen length mismatch gapopen evalue bitscore"
 
-#Hit table einlesem
-resultsDF <- read.table("~/add_volume/uni/project/TetA_N_HitTable.txt")
-resultD <- read.table("~/add_volume/uni/project/TetC_C_HitTable.txt")
-table(resultsDF[,1])
-table(resultsDF[,2])
-dim(resultsDF)
-#in table filtern (identity + coverage?!)
-filteredDF <- subset(resultsDF,resultsDF[,3] > 30 & resultsDF[,4] > 40)
-filteredD <- subset(resultD,resultD[,3] > 30 & resultD[,4] > 40)
-dim(filteredD)
-#Listen vergleichen
-intersect(filteredDF$V2,filteredD$V2)
-
-#To-Do:
-#funktion schreiben, die Listen vergleicht, Suchstränge als zu übergebende Parameter
-#blast-ausgabe Spaltennamen
-#Namen der Plots (TetA, TetC usw.)
+# function for hybrid search
+hybrid_search <- function(NTablePath, CTablePath, ident, coverage){
+  NTable <- read.table(NTablePath)
+  CTable <- read.table(CTablePath)
+  filteredDataN <- subset(NTable, NTable[,3]>ident & NTable[,4]>coverage)
+  filteredDataC <- subset(CTable, CTable[,3]>ident & CTable[,4]>coverage)
+  result <- intersect(filteredDataN$V2,filteredDataC$V2) #besser als File speichern und zurückgeben??
+  return(result)
+}
+#searching for hybrids in BLAST Hit table using 30% identity and 40% coverage
+hybrid_search("~/add_volume/uni/project/TetA_N_HitTable.txt","~/add_volume/uni/project/TetC_C_HitTable.txt",30,40)
